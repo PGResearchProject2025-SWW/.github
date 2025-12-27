@@ -175,13 +175,13 @@ Project documentation is maintained internally by the research team.
 **Supervisor**: dr inż. Jacek Lebiedź
 
 **Research Team**:
-- Adam Cherek
-- Mikołaj Bisewski
-- Karolina Zaborowska
-- Barbara Badziąg
-- Marcin Chętnik
-- Bogumiła Merc
-- Tomasz Pietrowski
+- [Adam Cherek](https://github.com/adbreeker)
+- [Mikołaj Bisewski](https://github.com/Biz02m)
+- [Karolina Zaborowska](https://github.com/karazab)
+- [Barbara Badziąg](https://github.com/BasiaBa)
+- [Marcin Chętnik](https://github.com/skipdudes)
+- [Bogumiła Merc](https://github.com/sugoob)
+- [Tomasz Pietrowski](https://github.com/tomaszpietr)
 
 ## 📄 License
 
