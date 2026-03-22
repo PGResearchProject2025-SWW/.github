@@ -1,0 +1,10 @@
+*
+!/documentation
+!/documentation/**
+!/results
+!/results/**
+!/profile
+!/profile/**
+!.gitignore
+!README.md
+!LICENSE
