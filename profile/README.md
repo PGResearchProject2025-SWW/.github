@@ -3,6 +3,8 @@
 
 <div align="center">
 
+<img src="./images/logo.png" width="150" />
+
 ![VR Simulation](https://img.shields.io/badge/VR-CAVE%20System-blue?style=for-the-badge&logo=oculus)
 ![Research](https://img.shields.io/badge/Research-2025-green?style=for-the-badge&logo=academia)
 ![University](https://img.shields.io/badge/Politechnika-Gdańska-red?style=for-the-badge&logo=university)
@@ -13,162 +15,43 @@
 
 ---
 
-## 🎯 Project Overview
+## Quick Access
 
-The **Symulator Wad Wzroku (SWW)** is a research initiative developed at **Politechnika Gdańska** (Gdansk University of Technology). The project aims to create a simulation environment for visualizing various eye defects and impairments.
+- [🔍 Project Overview](#-project-overview)
+- [🏛️ Institution](#-institution)
+- [👥 Team](#-team)
+- [ℹ️ About Project](#ℹ️-about-project)
+  - [🎯 Main Goal](#-main-goal)
+  - [🔧 System Design](#-system-design)
+    - [Simulator Architecture](#simulator-architecture)
+    - [Visual Rendering Pipeline - Shaders](#visual-rendering-pipeline---shaders)
+    - [External Controller](#external-controller---sww-controller-application)
+    - [Custom Unity Editor Tools](#custom-unity-editor-tools)
+  - [🚀 How It Works](#-how-it-works)
+    - [Virtual Environment](#virtual-environment)
+    - [User Interaction Model](#user-interaction-model)
+    - [Task Scenarios](#task-scenarios)
+    - [Documentation & Technical References](#documentation--technical-references)
+  - [📊 Research & Evaluation](#-research--evaluation)
+  - [📚 Results & Documentation](#-results--documentation)
+- [📄 License](#-license)
+- [🙏 Acknowledgments](#-acknowledgments)
+- [Results Repository →](../results/README.md)
 
-The system is composed of two primary applications:
-1.  **SWW-UnitySimulator**: The main simulation engine built in Unity, responsible for rendering the virtual environment and applying visual impairment effects.
-2.  **SWW-ExternalController**: A WPF (Windows Presentation Foundation) application that acts as a remote control for the simulator, allowing researchers to toggle and adjust impairments in real-time.
+## 🔍 Project Overview
+
+**SWW (Symulator Wad Wzroku)** is an immersive virtual reality simulator designed to enable healthy individuals to experience visual perception from the perspective of people with various visual impairments and eye diseases. Developed in the Immersive 3D Visualization Lab (LZWP) at Gdańsk University of Technology, this educational and research tool supports architects, designers, and students in understanding accessibility from the user's viewpoint through direct immersive experience.
+
+The simulator uses a symptom-based approach rather than clinical diagnosis modeling, allowing flexible combination and real-time adjustment of 22 distinct visual impairments. Users interact with realistic, everyday scenarios (meal preparation, hygiene activities, device operation) within a digitally modeled single-family house, providing meaningful context for evaluating how visual limitations impact daily functioning and spatial navigation.
 
 ## 🏛️ Institution
+
+<img src="./images/eti-png.png" width="400" />
 
 **Politechnika Gdańska (Gdansk University of Technology)**
 - Faculty of Electronics, Telecommunications and Informatics
 - Department of Intelligent Interactive Systems
 - [Immersive 3D Visualization Lab (LZWP)](https://eti.pg.edu.pl/en/lzwp-en)
-
-## 🔬 Research Objectives
-
-### Primary Goals
-The primary goal of the research is to evaluate the usability and realism of the VR application in simulating various visual impairments. The study aims to:
-1.  **Assess Realism**: Verify if the simulation faithfully reproduces the perception of individuals with specific visual defects.
-2.  **Evaluate User Experience**: Determine the degree of perceptual limitation felt by users without visual impairments.
-3.  **Analyze Task Difficulty**: Measure how different simulated conditions affect the subjective difficulty of performing daily tasks.
-4.  **Validate Design Utility**: Confirm if the simulator can serve as an effective tool for architectural design oriented towards accessibility.
-
-### Research Questions
-- Does the VR application faithfully reproduce the perception of the world by people with selected visual impairments?
-- To what extent do users (without visual impairments) feel perceptual limitations when using the simulator?
-- Does the simulation of different eye conditions affect the subjective assessment of the difficulty of performing daily tasks in a virtual environment?
-- Can the immersive spatial visualization simulator be effectively used as a tool to support the design of architectural space adapted to people with visual impairments?
-
-### Implemented Visual Impairments
-
-Based on the source code analysis and project documentation, the simulator currently implements the following visual impairments:
-
-#### Camera-Based Effects (Post-Processing)
-These effects are applied to the camera's view to simulate global vision changes.
-*   **Refractive & Focus Errors**: `Farsighted`, `Shortsighted`, `DepthBlur`, `BlurVision`
-*   **Color Vision Deficiencies**: `ColorBlind_Deuteranopia`, `ColorBlind_Protanopia`, `ColorBlind_Tritanopia`
-*   **Environmental & Light Sensitivity**: `FoggyVision`, `NightVision`, `Desaturation`, `Bloom`, `Halo`
-*   **Distortions & Disorientations**: `Distortion`, `LineDistortion`, `DoubleVision`, `Dizziness`, `CameraShake`
-
-#### Sphere-Based Effects (Localized)
-These effects are rendered using a sphere around the user to simulate localized field loss or obstructions.
-*   **Field Loss**: `RadialVignette` (Tunnel Vision), `DarkSpot`
-*   **Obstructions**: `Floaters`
-*   **Legacy Effects**: `(Legacy)BlindSpots`, `(Legacy)Floaters`
-
-## 🏗️ System Architecture
-
-The system operates on a **Client-Server** architecture designed for a CAVE (Cave Automatic Virtual Environment) setup.
-
-*   **Server (Controller)**: The WPF application acts as the command center. It hosts a TCP server and broadcasts its presence via UDP.
-*   **Client (Simulator)**: The Unity application runs on the CAVE cluster. It auto-discovers the server, connects via TCP, and executes commands.
-
-### Communication Protocol
-*   **Discovery**: UDP Broadcast on port **7777**. Message: `SWW_ExternalController:<IP>:<PORT>`.
-*   **Command Channel**: TCP connection on port **41002**.
-*   **Data Format**: Custom string-based protocol.
-    *   *Impairments*: `VisualImpairments:Name,Strength;Name2,Strength2\n`
-    *   *Transform*: `SphereRendererInitialTransform:X;Y;Z;...`
-
-## 🧩 Component Analysis
-
-### 1. SWW-UnitySimulator (The Engine)
-Built on **Unity 2018.1.9f2**, this component handles the immersive visualization.
-
-#### 👁️ Visual Impairments Engine
-The core of the simulation uses a **Dual-Rendering Pipeline** to support different types of vision defects:
-
-*   **ScriptableObject Architecture**: Each impairment is defined as a `VisualImpairmentSO` asset. This allows for modular configuration of shaders, default strengths, and renderer types without recompiling code.
-*   **Camera Renderer (`VisualImpairmentsRenderer_Camera`)**:
-    *   Handles **Post-Processing Effects** (e.g., Blur, Color Blindness, Distortions).
-    *   Uses `OnRenderImage` to intercept the render pipeline.
-    *   Dynamically stacks multiple shader passes using `Graphics.Blit`. If multiple effects are active, it manages temporary `RenderTexture` buffers to chain them efficiently.
-*   **Sphere Renderer (`VisualImpairmentsRenderer_Sphere`)**:
-    *   Handles **Localized Effects** (e.g., Tunnel Vision, Floaters, Scotomas).
-    *   Renders a physical mesh sphere surrounding the user.
-    *   Manipulates the `MeshRenderer` material array at runtime, layering impairment materials over the base material.
-
-#### 🎮 Task Management System
-A structured system for conducting ADL (Activities of Daily Living) experiments:
-*   **TaskManagerBehaviour**: A Singleton manager that orchestrates the experiment flow. It synchronizes the state of the "Clipboard" (instructions) across the cluster using RPCs.
-*   **Task Logic**:
-    *   Base `Task` class defines the contract (`isDone`, `getDescription`).
-    *   Complex tasks like `WashHandsTask` utilize **Trigger Zones** and **Flystick Tracking** (checking for specific controller handles within a collider) to validate user actions over time.
-*   **Cluster Synchronization**:
-    *   **LZWPlib**: A custom library used for synchronizing the CAVE cluster (Master/Slave nodes).
-    *   **NetworkView**: Uses legacy RPCs (`RPCMode.All`, `RPCMode.OthersBuffered`) to ensure all walls of the CAVE display the same task state and UI text.
-
-### 2. SWW-ExternalController (The Remote)
-A **WPF (.NET)** application built with the **MVVM (Model-View-ViewModel)** pattern for robust state management.
-
-#### 🔌 Network Manager
-*   **TCP Server**: Uses `TcpListener` to accept connections from the Unity Simulator.
-*   **UDP Broadcaster**: Runs a background thread to announce the controller's IP address to the local network, enabling "Zero-Config" connections.
-*   **Thread Safety**: Marshals network events back to the UI thread for safe updates.
-
-#### 🎛️ Visual Impairments Manager
-*   **State Management**: Maintains an `ObservableCollection<VisualImpairment>` representing the current simulation state.
-*   **Real-time Updates**: Subscribes to `PropertyChanged` events on every impairment model. When a slider is moved, it immediately serializes the new state and transmits it to the simulator.
-
-#### 💾 Presets System
-*   **JSON Persistence**: Configurations are saved as JSON files in a `./presets/` directory.
-*   **Manager**: `PresetsManager` handles CRUD operations, ensuring researchers can switch between complex impairment profiles (e.g., "Glaucoma Stage 3") instantly.
-
-#### 💻 Developer Console
-*   **Debug Tool**: A built-in console (`DevConsoleManager`) allows for direct command injection and debugging.
-*   **Features**: Supports command suggestions and history, useful for testing the network protocol directly.
-
-## 📊 Features
-
-### Real-time Control
-The **External Controller** allows for real-time manipulation of the simulation. It uses a TCP connection to send commands to the Unity Simulator.
-*   **Discovery**: The controller broadcasts its presence on UDP port 7777, allowing the simulator to automatically find and connect to it.
-*   **Parameter Adjustment**: Each impairment has adjustable parameters (e.g., `EffectStrength`) that can be modified on the fly.
-
-### Preset System
-The system supports saving and loading of **Visual Impairment Presets**. This allows researchers to define specific combinations of impairments (e.g., "Severe Myopia with Color Blindness") and quickly apply them during experiments.
-
-
-### Task Management System
-The Unity Simulator includes a `TaskManager` to handle experimental tasks based on Activities of Daily Living (ADL).
-*   **Task Workflow**: Tasks are activated sequentially.
-*   **Implemented Tasks**:
-    1.  **Meal Preparation**: Sandwich assembly in the Kitchen.
-    2.  **Personal Hygiene**: Hand washing in the Bathroom.
-    3.  **Consumer Electronics**: Finding a remote and turning on the TV in the Bedroom.
-*   **Extensibility**: New tasks can be added by extending `TaskSetup` and `Task` classes.
-
-### Sceneries
-The simulation takes place in a virtual single-family home environment, consisting of 4 main rooms arranged in an inverted "T" layout:
-*   **Hall**: Central hub connecting all rooms.
-*   **Kitchen**: Fully equipped with appliances and interactive objects.
-*   **Bathroom**: Standard fixtures for hygiene tasks.
-*   **Bedroom**: Cozy environment with a bed and TV.
-*   **Intro**: A lobby scene for tutorials and initial setup.
-## 🖥️ Deployment Requirements
-
-The system is engineered for a specific high-end visualization environment.
-
-### Hardware Environment
-*   **CAVE System**: A multi-wall projection system driven by a cluster of rendering nodes.
-*   **Tracking**: 6-DOF tracking system for user head position and interaction devices ("Flystick").
-*   **Network**: Low-latency LAN connecting the rendering cluster and the control station.
-
-### Software Dependencies
-*   **Runtime**: Unity 2018.1.9f2 (Specific version required for `LZWPlib` compatibility).
-*   **OS**: Windows 10/11 (Required for WPF External Controller).
-*   **Dependencies**:
-    *   `LZWPlib`: Proprietary library for cluster synchronization and projection mapping.
-    *   `.NET Framework`: Required for the External Controller.
-## 📄 Documentation
-
-Project documentation is maintained internally by the research team.
-*   **Systematic Literature Review**: A comprehensive review of existing VR visual impairment simulations has been conducted to inform the design.
-*   **Research Article**: A paper detailing the system architecture, implementation challenges, and validation results is currently in preparation.
 
 ## 👥 Team
 
@@ -182,6 +65,219 @@ Project documentation is maintained internally by the research team.
 - [Marcin Chętnik](https://github.com/skipdudes)
 - [Bogumiła Merc](https://github.com/sugoob)
 - [Tomasz Pietrowski](https://github.com/tomaszpietr)
+
+
+## ℹ️ About Project
+
+### 🎯 Main Goal
+
+The primary objective is to develop an accessible educational and research tool that enables individuals without visual impairments to experience spatial perception through the lens of various visual disorders. The simulator supports inclusive design education by allowing architects, urban planners, and designers to evaluate the accessibility of their designs from the end-user's perspective within an immersive virtual reality environment.
+
+**Key motivation**: Unlike traditional clinical diagnosis-based models, this project adopts a symptom-based approach, recognizing that many visual conditions produce overlapping perceptual effects. This allows for realistic representation of a spectrum of visual experiences through flexible combination and intensity adjustment of individual symptoms.
+
+---
+
+### 🔧 System Design
+
+#### Simulator Architecture
+
+The simulator operates exclusively within the **BigCAVE environment** (3.4m × 3.4m) at the Immersive 3D Visualization Lab (LZWP). Key architectural components include:
+
+**Core Modules:**
+- **GameManager**: Manages simulation logic and command processing
+- **VisualImpairmentsManager**: Handles all visual impairment effects and symptom combinations
+- **SoundManager**: Controls audio playback and environmental soundscapes
+- **SocketManager**: Manages network communication between simulator and external controller
+- **LZWPlib Package**: Integrates CAVE-specific features (stereoscopic rendering, head tracking, camera systems)
+
+**Environment Structure:**
+- 7 total scenes: Main (default), Setup (fallback), Intro (tutorial lobby), and 4 user-facing room scenarios
+- Room layouts: Hall (central hub), Bedroom, Bathroom, Kitchen - arranged in inverted "T" configuration
+- All environments built to match CAVE physical dimensions (3.4m × 3.4m)
+- Rich interactive elements (exceeding basic task requirements) to enhance immersion
+
+#### Visual Rendering Pipeline - Shaders
+
+The visual impairment simulation leverages **custom shaders and real-time post-processing techniques** to generate perceptually accurate effects. This shader-based implementation employs a dual-layer rendering architecture:
+
+**Rendering Systems:**
+
+1. **Camera Renderer** (Post-processing Filters):
+   - Filters applied sequentially on top of the camera view
+   - Each effect builds on the previous one, creating cumulative visual distortions
+   - 17 distinct shader effects: Bloom, BlurVision, CameraShake, ColorBlind_Deutera, ColorBlind_Protanc, ColorBlind_Tritanor, DepthBlur, Desaturation, Distortion, Dizziness, DoubleVision, Farsighted, FoggyVision, Halo, LineDistortion, NightVision, Shortsighted
+   - Ideal for global visual distortions affecting the entire visual field
+
+2. **Sphere Renderer** (Spatial Effects):
+   - Materials applied to a transparent sphere positioned close around the player's head
+   - Enables superior visualization of spatial impairments with depth and proximity awareness
+   - 5 shader effects (including legacy variants): DarkSpot, Floaters, RadialVignette, (Legacy)BlindSpots, (Legacy)Floaters
+   - Provides realistic 3D spatial mapping for field-of-view restrictions and peripheral phenomena
+
+**Key Capabilities:**
+- **Real-time performance**: Smooth, responsive visual effects without noticeable latency
+- **Dynamic parameter control**: All shaders expose an `_EffectStrength` variable (0.0-1.0) allowing real-time intensity adjustment via the controller application
+- **Symptom combinations**: Simultaneous rendering of multiple shaders with independent parameter control
+- **Spatial accuracy**: Sphere rendering ensures proper depth relationships for spatial impairments
+
+**Predefined Visual Impairment Presets (8 total):**
+The controller application includes 8 quick-access preset configurations combining multiple shader effects:
+- Choroba Bensona (Benson's disease)
+- Jaskra (Glaucoma)
+- Kurza ślepota (Night blindness)
+- Oczopląs (Nystagmus)
+- Odwarstwienie siatkówki (Retinal detachment)
+- Retinopatia cukrzycowa (Diabetic retinopathy)
+- Zaćma (Cataract)
+- Zwyrodnienie plamki żółtej (Age-Related Macular Degeneration)
+
+Users can also create custom symptom combinations by independently adjusting individual shader parameters in real-time.
+
+#### External Controller - SWW-Controller Application
+
+A dedicated operator application providing seamless control over simulation parameters:
+
+- **Real-time network interface**: Communicates with simulator via local network (UDP broadcast for discovery, TCP for data)
+- **Operator UI**: Allows parameter management without disrupting user immersion within the CAVE
+- **Network Configuration**: IP address management, broadcast/communication port settings
+- **Visual Impairment Presets**: Quick-access saved configurations for common visual disorders
+- **Stopwatch & Progress Tracking**: Monitors task execution time and user performance
+- **Dev Console**: Command-line interface for advanced testing and debugging
+
+#### Custom Unity Editor Tools
+
+Specialized development tools integrated into the Unity editor workflow:
+
+- **DevUI_EditorWindow**: Developer interface for in-editor testing and parameter visualization
+- **DevVariablesManager**: Centralized management of development variables and configuration settings
+- **SceneCollectionEditorSO**: Scene collection editing tool for managing room arrangement and loading workflows
+- **SWW_MenuSection**: Custom menu integration for quick access to project-specific functions
+- **PlaymodeRedirect**: Automation tool for redirecting playmode sessions to correct scenes
+- **AssetRotationFixer**: Utility for correcting asset orientations during development
+
+These tools streamline development workflows and reduce iteration time during system refinement.
+
+---
+
+### 🚀 How It Works
+
+#### Virtual Environment
+
+The simulator recreates a realistic single-family house interior at **1:1 scale** within the physical CAVE environment:
+
+**Room Layouts:**
+- **Hall**: Central entry point and connector between rooms; features illusory space elements to optically enlarge the environment
+- **Kitchen**: Maximum movement space for exploratory tasks; includes refrigerator, stove, cabinets, workspace
+- **Bathroom**: Balanced movement/static areas; equipped with standard fixtures (sink, mirror, toilet, shower, storage)
+- **Bedroom**: Minimal movement space for static-focused tasks; furnished with bed, wardrobe, TV, bedside lighting
+
+All rooms include interactive lighting systems (ceiling lamps, natural light simulation) and numerous interactive objects exceeding basic task requirements to maximize immersion.
+
+#### User Interaction Model
+
+**Physical Navigation:**
+- Users physically move within the tracking area (3.4m × 3.4m)
+- Head position and orientation tracked in real-time via stereoscopic glasses equipped with motion markers
+- Dynamic perspective adjustment ensures visual coherence with physical movement
+
+**Controller Interface (Flystick):**
+- **Object Detection**: Automatically detects and highlights objects one at a time, prioritizing those directly targeted by a raycast, followed by those within a sphere overlap near the handle
+- **Primary Button (Fire)**: Object pickup/drop, door interaction, scene transitions, primary actions
+- **Secondary Button (Button 1)**: Contextual interactions (e.g., remote control button presses while holding the remote)
+- **Interface Toggle (Button 4)**: Enables/disables virtual aiming ray for precise object targeting
+
+**Interaction Types:**
+- **Clickable Objects**: Single-action interactions (door transitions, cabinet opening)
+- **Holdable Objects**: Objects that remain in user's hand (remote control, soap, food items)
+- **Grabbable Objects**: Objects usable while held (secondary interactions like remote control buttons)
+
+#### Task Scenarios
+
+Users execute simple, realistic daily-living tasks:
+
+1. **Bathroom - Personal Hygiene**: Hand washing task involving color discrimination (selecting correct soap), faucet operation, and simulated water interaction
+2. **Kitchen - Meal Preparation**: Sandwich assembly requiring ingredient identification, spatial search, and proper sequencing
+3. **Bedroom - Device Operation**: Television remote control task testing object location in varied lighting, device manipulation, and interface navigation
+
+A diegetic (in-world) notepad tracks task progress with automatic checkmark updates and bold highlighting of current objectives.
+
+#### Documentation & Technical References
+
+Comprehensive technical documentation available in repository:
+
+- **[Technical Documentation](../results/README.md#-technical-documentation)** (PG_WETI_DT_wer1.2.pdf): System architecture, implementation details, installation procedures, controller configuration
+- **[System Project Specification](../results/README.md#-system-project-specification)** (PG_WETI_PS_wer1.0.pdf): Functional/non-functional requirements, detailed system design, component interactions
+- **[Research Article](../results/README.md#-research-article)** (ARTICLE.pdf): Academic publication with methodology, literature review, and research findings
+
+**See also presentation on YouTube:** [![System demonstration video](./images/youtube-presentation.png)](https://www.youtube.com/watch?v=575FnIgv7fE)
+
+---
+
+### 📊 Research & Evaluation
+
+#### Research Objectives
+
+The project conducted comprehensive research to evaluate:
+
+1. **Effectiveness**: Validity of symptom-based visual impairment simulation in recreating realistic perceptual experiences
+2. **Usability**: Accessibility and intuitiveness of the interface for users without prior VR experience
+3. **Educational Impact**: Value as an accessibility education tool for architectural and design students
+4. **Spatial Cognition**: Effects of combined visual impairments on navigation, object search, and task completion time
+
+#### Methodology
+
+Research employed quantitative and qualitative evaluation:
+- **Pilot testing**: Iterative system refinement based on user feedback
+- **Task performance metrics**: Completion time, accuracy, movement patterns analysis
+- **Symptom validation**: Verification of simulated visual effects against clinical descriptions
+- **User experience assessment**: Comfort, immersion, interface intuitiveness
+
+#### Research Gap Addressed
+
+While extensive VR-based visual impairment research exists using Head-Mounted Displays (HMDs), there is a notable absence of solutions specifically targeting **CAVE environments**. This project fills that gap by:
+- Adapting immersive experiences to large-scale shared projection systems
+- Enabling group observation (operator + participant) for educational scenarios
+- Providing higher spatial fidelity through 1:1 scale virtual-to-physical environment mapping
+
+---
+
+### 📚 Results & Documentation
+
+#### Research Outcomes
+
+The project resulted in a fully functional educational simulator with extensive validation. Key deliverables include:
+
+**Simulation Engine:**
+- 22 distinct visual impairment implementations
+- Real-time shader-based rendering system
+- Network-controlled parameter management
+- Intuitive user interface requiring no VR experience
+- Compatible with CAVE environment infrastructure
+
+**Research Documentation:**
+The project timeline (March 2025 - February 2026) produced a comprehensive research corpus as part of the complete SWW research initiative:
+
+- **[Research Article](../results/README.md#-research-article)** - Peer-reviewed publication documenting methodology, results, and implications
+- **[Analysis of Research Results](../results/README.md#--analysis-of-research-findings)** - Detailed findings from user testing and system validation
+- **[Technical Documentation](../results/README.md#-technical-documentation)** - Complete system implementation reference
+- **[System Project Specification](../results/README.md#-system-project-specification)** - Detailed requirements and design specifications
+- **[Project Poster](../results/README.md#-project-poster)** - Bilingual (Polish/English) research summary for academic dissemination
+
+**Full documentation available at:** [Results Repository](../results/README.md)
+
+#### Key Findings
+
+- Visual impairments significantly impact task completion time and navigation efficiency
+- Symptom-based approach provides flexible, clinically accurate representation of real-world visual experiences
+- CAVE-based immersion enables superior spatial understanding compared to HMD-based approaches
+- Simple, intuitive interface design ensures accessibility for non-technical users
+- System effectiveness validated through pilot user studies and iterative refinement
+
+#### Future Research Directions
+
+- Extended user studies with professional architects and designers
+- Data analysis and results compilation
+- Article publication and academic dissemination
 
 ## 📄 License
 
@@ -199,7 +295,7 @@ Access to the source code, binaries, or use of the simulator requires explicit p
 
 <div align="center">
 
-**Made with ❤️ by the PG Research Team 2025**
+**Made with ❤️ by the SWW Team 2025**
 
 *Advancing accessibility through innovation*
 
