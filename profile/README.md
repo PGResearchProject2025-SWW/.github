@@ -281,10 +281,12 @@ The project timeline (March 2025 - February 2026) produced a comprehensive resea
 
 ## 📄 License
 
-**Property of Politechnika Gdańska (Gdansk University of Technology) and the reseach team.**
+**Property of Politechnika Gdańska (Gdansk University of Technology) and the research team.**
 
 This is a **closed-source** research project. The code and assets are proprietary.
 Access to the source code, binaries, or use of the simulator requires explicit permission and contact with the university representatives.
+
+For the full license terms and additional information, see [LICENSE](../LICENSE).
 
 ## 🙏 Acknowledgments
 
